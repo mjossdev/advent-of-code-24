@@ -22,3 +22,20 @@ fun String.md5() = BigInteger(1, MessageDigest.getInstance("MD5").digest(toByteA
 fun Any?.println() = println(this)
 
 fun <T> Iterable<T>.countValue(element: T): Int = count { it == element }
+
+fun <T> Iterable<T>.split(predicate: (T) -> Boolean) = buildList<List<T>> {
+    var currentList = mutableListOf<T>()
+    this@split.forEach {
+        if (predicate(it)) {
+            add(currentList)
+            currentList = mutableListOf<T>()
+        } else {
+            currentList.add(it)
+        }
+    }
+    if (currentList.isNotEmpty()) {
+        add(currentList)
+    }
+}
+
+fun <T> List<T>.allIndexed(predicate: (Int, T) -> Boolean) = indices.all { predicate(it, this[it]) }
