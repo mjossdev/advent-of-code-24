@@ -39,3 +39,9 @@ fun <T> Iterable<T>.split(predicate: (T) -> Boolean) = buildList<List<T>> {
 }
 
 fun <T> List<T>.allIndexed(predicate: (Int, T) -> Boolean) = indices.all { predicate(it, this[it]) }
+
+data class Point(val row: Int, val col: Int)
+enum class Direction {
+    UP, RIGHT, DOWN, LEFT
+}
+operator fun List<String>.get(point: Point) = getOrNull(point.row)?.getOrNull(point.col)

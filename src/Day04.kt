@@ -1,9 +1,7 @@
 fun main() {
-    data class Point(val row: Int, val col: Int)
     data class Vector(val rowDelta: Int, val colDelta: Int)
 
     operator fun Vector.times(factor: Int) = Vector(rowDelta * factor, colDelta * factor)
-    operator fun List<String>.get(point: Point) = getOrNull(point.row)?.getOrNull(point.col)
     operator fun Point.plus(vector: Vector) = Point(row + vector.rowDelta, col + vector.colDelta)
 
     fun part1(input: List<String>): Int {
