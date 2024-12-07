@@ -9,28 +9,28 @@ fun main() {
         )
     }
 
-    fun Equation.isValid(): Boolean {
-        var possibleResults = setOf(numbers.first())
-        for (n in numbers.drop(1)) {
-            possibleResults = possibleResults.flatMap { listOf(it + n, it * n) }.toSet()
+    fun solve(input: List<String>, vararg operators: (Long, Long) -> Long): Long {
+        fun Equation.isValid(): Boolean {
+            var possibleResults = setOf(numbers.first())
+            for (n in numbers.drop(1)) {
+                possibleResults = possibleResults.flatMap { operators.map { op -> op(it, n) } }.toSet()
+            }
+            return result in possibleResults
         }
-        return result in possibleResults
-    }
 
-    fun part1(input: List<String>): Long {
         val equations = input.map { it.toEquation() }
         return equations.filter { it.isValid() }.sumOf { it.result }
     }
 
-    fun part2(input: List<String>): Int {
-        return 0
-    }
+    fun part1(input: List<String>): Long = solve(input, Long::plus, Long::times)
+
+    fun part2(input: List<String>): Long = solve(input, Long::plus, Long::times, { a, b -> "$a$b".toLong() })
 
     val testInput = readInput("Day07_test")
     check(part1(testInput) == 3749L)
-//    check(part2(testInput) == 6)
+    check(part2(testInput) == 11387L)
 
     val input = readInput("Day07")
     part1(input).println()
-//    part2(input).println()
+    part2(input).println()
 }
