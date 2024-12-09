@@ -39,6 +39,7 @@ fun <T> Iterable<T>.split(predicate: (T) -> Boolean) = buildList<List<T>> {
 }
 
 fun <T> List<T>.allIndexed(predicate: (Int, T) -> Boolean) = indices.all { predicate(it, this[it]) }
+fun <T> List<T>.sumOfIndexed(transform: (Int, T) -> Long): Long = indices.sumOf { transform(it, this[it]) }
 
 data class Point(val row: Int, val col: Int)
 enum class Direction {
