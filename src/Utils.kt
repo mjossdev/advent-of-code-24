@@ -53,6 +53,6 @@ fun Point.neighbors(): List<Point> = listOf(
 )
 operator fun List<String>.get(point: Point) = getOrNull(point.row)?.getOrNull(point.col)
 operator fun <T> List<List<T>>.get(point: Point) = getOrNull(point.row)?.getOrNull(point.col)
-fun List<List<Any?>>.points() = indices.asSequence().flatMap { row ->
+fun List<List<Any?>>.points() = indices.flatMap { row ->
     this[row].indices.map { Point(row, it) }
 }
