@@ -45,4 +45,14 @@ data class Point(val row: Int, val col: Int)
 enum class Direction {
     UP, RIGHT, DOWN, LEFT
 }
+fun Point.neighbors(): List<Point> = listOf(
+    copy(row = row - 1),
+    copy(row = row + 1),
+    copy(col = col - 1),
+    copy(col = col + 1)
+)
 operator fun List<String>.get(point: Point) = getOrNull(point.row)?.getOrNull(point.col)
+operator fun <T> List<List<T>>.get(point: Point) = getOrNull(point.row)?.getOrNull(point.col)
+fun List<List<Any?>>.points() = indices.asSequence().flatMap { row ->
+    this[row].indices.map { Point(row, it) }
+}
