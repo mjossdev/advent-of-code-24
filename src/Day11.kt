@@ -18,7 +18,7 @@ fun main() {
         }
     }
     fun List<Long>.blink(times: Int): Long {
-        var current = groupingBy { it }.eachCount().mapValues { it.value.toLong() }
+        var current = eachCount().mapValues { it.value.toLong() }
         repeat(times) {
             current = buildMap {
                 current.forEach { (n, count) ->

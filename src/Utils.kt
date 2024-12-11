@@ -56,3 +56,5 @@ operator fun <T> List<List<T>>.get(point: Point) = getOrNull(point.row)?.getOrNu
 fun List<List<Any?>>.points() = indices.flatMap { row ->
     this[row].indices.map { Point(row, it) }
 }
+
+fun <T> Iterable<T>.eachCount(): Map<T, Int> = groupingBy { it }.eachCount()

@@ -16,7 +16,7 @@ fun main() {
 
     fun part2(input: List<String>): Int {
         val (left, right) = readLists(input)
-        val counts = right.groupingBy { it }.eachCount()
+        val counts = right.eachCount()
         return left.sumOf { it * (counts[it] ?: 0) }
     }
 
