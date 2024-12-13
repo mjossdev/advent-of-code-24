@@ -66,3 +66,5 @@ fun List<String>.points() = indices.flatMap { row ->
 }
 
 fun <T> Iterable<T>.eachCount(): Map<T, Int> = groupingBy { it }.eachCount()
+
+data class Coordinate(val x: Int, val y: Int)
