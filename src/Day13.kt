@@ -1,26 +1,26 @@
 fun main() {
-    class Button(val cost: Int, val x: Int, val y: Int)
+    data class Button(val cost: Int, val x: Int, val y: Int)
 
-    class Game(val aButton: Button, val bButton: Button, val prize: Coordinate) {
-        fun calculateCheapestWin(): Int? {
-            val range = 1..100
-            return range.asSequence().flatMap { aPresses ->
-                range.mapNotNull { bPresses ->
-                    val result = Coordinate(
-                        aPresses * aButton.x + bPresses * bButton.x,
-                        aPresses * aButton.y + bPresses * bButton.y
-                    )
-                    if (result == prize) {
-                        aPresses * aButton.cost + bPresses * bButton.cost
-                    } else {
-                        null
-                    }
-                }
-            }.minOrNull()
+    data class Game(val aButton: Button, val bButton: Button, val prize: Coordinate)
+
+    fun Game.calculateCheapestWin(maxPresses: Int? = null, offset: Long = 0L): Long? {
+        val px = prize.x + offset
+        val py = prize.y + offset
+        // equation was solved on paper
+        val numerator = px * aButton.y - py * aButton.x
+        val denominator = bButton.x * aButton.y - bButton.y * aButton.x
+        val bPresses = numerator / denominator
+        val aPresses = (px - bPresses * bButton.x) / aButton.x
+        if (maxPresses != null && (bPresses > maxPresses || aPresses > maxPresses)
+            || aPresses * aButton.x + bPresses * bButton.x != px
+            || aPresses * aButton.y + bPresses * bButton.y != py
+            ) {
+            return null
         }
+        return aPresses * aButton.cost + bPresses * bButton.cost
     }
 
-    val buttonRegex = Regex("""Button ([A|B]): X\+(\d+), Y\+(\d+)""")
+    val buttonRegex = Regex("""Button ([AB]): X\+(\d+), Y\+(\d+)""")
     fun String.toButton(): Button {
         val matchResult = buttonRegex.matchEntire(this) ?: error("Invalid button: $this")
         val (_, name, x, y) = matchResult.groupValues
@@ -44,19 +44,16 @@ fun main() {
         return Game(aButton.toButton(), bButton.toButton(), prize.toPrize())
     }
 
-    fun part1(input: List<String>): Int = input.asSequence()
-        .chunked(4)
-        .sumOf { it.toGame().calculateCheapestWin() ?: 0 }
+    fun part1(input: List<String>): Long = input.chunked(4)
+        .sumOf { it.toGame().calculateCheapestWin(maxPresses = 100) ?: 0 }
 
-    fun part2(input: List<String>): Int {
-        return 0
-    }
+    fun part2(input: List<String>): Long = input.chunked(4)
+        .sumOf { it.toGame().calculateCheapestWin(offset = 10000000000000) ?: 0 }
 
     val testInput = readInput("Day13_test")
-    check(part1(testInput) == 480)
-//    check(part2(testInput) == 81)
+    check(part1(testInput) == 480L)
 
     val input = readInput("Day13")
     part1(input).println()
-//    part2(input).println()
+    part2(input).println()
 }
