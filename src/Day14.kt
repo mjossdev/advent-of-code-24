@@ -53,15 +53,39 @@ fun main() {
         return tl * tr * bl * br
     }
 
-    fun part2(input: List<String>): Int {
-        return 0
+    fun part2(input: List<String>) {
+        val width = 101
+        val height = 103
+        val xRange = 0 until width
+        val yRange = 0 until height
+        var robots = input.map { it.toRobot() }
+        // abort program once you see the christmas tree
+        repeat(Int.MAX_VALUE) { second ->
+            val positions = robots.map { it.position }.toSet()
+            val picture = buildString((width + 1) * height) {
+                for (y in yRange) {
+                    for (x in xRange) {
+                        append(if (Coordinate(x, y) in positions) '#' else ' ')
+                    }
+                    appendLine()
+                }
+            }
+            if (picture.contains("#".repeat(25))) {
+                println(picture)
+                println(second)
+            }
+            robots = robots.map { robot ->
+                val x = (((robot.position.x + robot.velocity.x) % width) + width) % width
+                val y = (((robot.position.y + robot.velocity.y) % height) + height) % height
+                robot.copy(position = Coordinate(x, y))
+            }
+        }
     }
 
     val testInput = readInput("Day14_test")
     check(part1(testInput, 11, 7) == 12)
-//    check(part2(testInput) == 81)
 
     val input = readInput("Day14")
     part1(input, 101, 103).println()
-//    part2(input).println()
+    part2(input)
 }
