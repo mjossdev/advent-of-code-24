@@ -74,4 +74,8 @@ fun List<String>.points() = indices.flatMap { row ->
 
 fun <T> Iterable<T>.eachCount(): Map<T, Int> = groupingBy { it }.eachCount()
 
+fun <T, R> Pair<T, T>.map(transform: (T) -> R): Pair<R, R> = transform(first) to transform(second)
+fun <T> Pair<T, T>.any(predicate: (T) -> Boolean) = predicate(first) || predicate(second)
+fun <T> Pair<T, T>.toList() = listOf(first, second)
+
 data class Coordinate(val x: Int, val y: Int)
