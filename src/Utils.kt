@@ -46,14 +46,21 @@ enum class Direction {
     UP, RIGHT, DOWN, LEFT
 }
 fun Point.verticalNeighbors() = listOf(
-    copy(row = row - 1),
-    copy(row = row + 1),
+    next(Direction.UP),
+    next(Direction.DOWN)
 )
 fun Point.horizontalNeighbors() = listOf(
-    copy(col = col - 1),
-    copy(col = col + 1)
+    next(Direction.LEFT),
+    next(Direction.RIGHT)
 )
 fun Point.neighbors(): List<Point> = verticalNeighbors() + horizontalNeighbors()
+fun Point.next(direction: Direction) = when (direction) {
+    Direction.UP -> copy(row = row - 1)
+    Direction.RIGHT -> copy(col = col + 1)
+    Direction.DOWN -> copy(row = row + 1)
+    Direction.LEFT -> copy(col = col - 1)
+}
+
 operator fun List<String>.get(point: Point) = getOrNull(point.row)?.getOrNull(point.col)
 operator fun <T> List<List<T>>.get(point: Point) = getOrNull(point.row)?.getOrNull(point.col)
 @JvmName("pointsListList")
