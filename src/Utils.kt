@@ -79,3 +79,9 @@ fun <T> Pair<T, T>.any(predicate: (T) -> Boolean) = predicate(first) || predicat
 fun <T> Pair<T, T>.toList() = listOf(first, second)
 
 data class Coordinate(val x: Int, val y: Int)
+fun Coordinate.next(direction: Direction) = when (direction) {
+    Direction.UP -> copy(y = y - 1)
+    Direction.RIGHT -> copy(x = x + 1)
+    Direction.DOWN -> copy(y = y + 1)
+    Direction.LEFT -> copy(x = x - 1)
+}
