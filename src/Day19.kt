@@ -1,12 +1,13 @@
 fun main() {
     class ArrangementCounter(val towels: List<String>, val pattern: String) {
-        private val cache = mutableMapOf<Int, Long>()
+        private val cache = LongArray(pattern.length) { -1L }
 
-        fun count(startIndex: Int = 0): Long = cache.getOrPut(startIndex) {
+        fun count(startIndex: Int = 0): Long {
             if (startIndex == pattern.length) {
-                1L
-            } else {
-                towels.sumOf {
+                return 1L
+            }
+            if (cache[startIndex] == -1L) {
+                cache[startIndex] = towels.sumOf {
                     if (pattern.startsWith(it, startIndex)) {
                         count(startIndex + it.length)
                     } else {
@@ -14,6 +15,7 @@ fun main() {
                     }
                 }
             }
+            return cache[startIndex]
         }
     }
 
