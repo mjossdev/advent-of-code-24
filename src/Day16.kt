@@ -14,20 +14,6 @@ fun main() {
     }
 
     data class State(val position: Point, val direction: Direction)
-    fun findStartAndEnd(input: List<String>): Pair<Point, Point> {
-        var start: Point? = null
-        var end: Point? = null
-        input.forEachIndexed { row, line ->
-            line.forEachIndexed { col, c ->
-                val point = Point(row, col)
-                when (input[point]) {
-                    'S' -> start = point
-                    'E' -> end = point
-                }
-            }
-        }
-        return start!! to end!!
-    }
 
     fun part1(input: List<String>): Int {
         val (start, end) = findStartAndEnd(input)
