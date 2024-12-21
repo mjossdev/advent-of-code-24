@@ -108,9 +108,9 @@ fun main() {
     fun solve(input: List<String>, robots: Int): Long = input.sumOf { code ->
         var results = code.getNumberRobotResults()
         repeat(robots) {
-            results = results.flatMap {
-                it.remoteResults(directionPad, directionGap)
-            }.prune()
+            results = results.parallelStream().flatMap {
+                it.remoteResults(directionPad, directionGap).stream()
+            }.toList().prune()
         }
         results.first().totalPresses * code.filter { it.isDigit() }.toLong()
     }
