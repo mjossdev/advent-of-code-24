@@ -35,9 +35,9 @@ fun main() {
             }
         }
         val allSequences = priceMaps.flatMap { it.keys }.toSet()
-        return allSequences.maxOf {sequence ->
+        return allSequences.parallelStream().mapToInt {sequence ->
             priceMaps.sumOf { it[sequence] ?: 0 }
-        }
+        }.max().asInt
     }
 
     check(part1(readInput("Day22_test1")) == 37327623L)
