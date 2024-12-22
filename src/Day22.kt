@@ -19,8 +19,10 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        val priceMaps = input.map { initialSecret ->
-            buildMap {
+        val priceMap = buildMap<List<Int>, Int> {
+            input.forEach { initialSecret ->
+                val encountered = mutableSetOf<List<Int>>()
+
                 initialSecret.toLong().evolve()
                     .take(2001)
                     .map { it.toPrice() }
@@ -28,16 +30,13 @@ fun main() {
                     .windowed(4)
                     .forEach {
                         val changes = it.map { (prev, next) -> next - prev }
-                        if (changes !in this) {
-                            this[changes] = it.last().second
+                        if (encountered.add(changes)) {
+                            merge(changes, it.last().second, Int::plus)
                         }
                     }
             }
         }
-        val allSequences = priceMaps.flatMap { it.keys }.toSet()
-        return allSequences.parallelStream().mapToInt {sequence ->
-            priceMaps.sumOf { it[sequence] ?: 0 }
-        }.max().asInt
+        return priceMap.values.max()
     }
 
     check(part1(readInput("Day22_test1")) == 37327623L)
