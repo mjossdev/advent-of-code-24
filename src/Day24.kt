@@ -87,52 +87,79 @@ fun main() {
         return wires.applyGates(gates).getValue('z')
     }
 
+    fun Collection<LogicGate>.swapOutputs(a: String, b: String): Set<LogicGate> = toMutableSet().apply {
+        val g1 = first { it.output == a }
+        val g2 = first { it.output == b }
+        remove(g1)
+        remove(g2)
+        add(g1.copy(output = b))
+        add(g2.copy(output = a))
+    }
+
     fun part2(input: List<String>): String {
         val wires = input.takeWhile { it.isNotBlank() }.toWires().mapValues { 0L }
-        val swaps = listOf<Pair<String, String>>(
-            // swaps were figured out manually, not committed to avoid sharing input
-        )
-        val gates = input.takeLastWhile { it.isNotBlank() }.map { it.toLogicGate() }.toMutableSet().apply {
-            for (pair in swaps) {
-                val g1 = first { it.output == pair.first }
-                val g2 = first { it.output == pair.second }
-                remove(g1)
-                remove(g2)
-                add(g1.copy(output = g2.output))
-                add(g2.copy(output = g1.output))
-            }
-        }
-        val gateByInputs = gates.associateBy { Pair(setOf(it.input1, it.input2), it.operator) }
+        val gates = input.takeLastWhile { it.isNotBlank() }.map { it.toLogicGate() }
         val highestInputBit = wires.keys.maxOf { it.drop(1).toInt() }
 
-        fun getHalfAdder(a: String?, b: String?): Adder.Half {
-            if (a == null || b == null) {
-                return Adder.Half(a, b, null, null)
+        fun nextSwap(gates: Collection<LogicGate>): Pair<String, String>?
+        {
+            val gateByInputs = gates.associateBy { Pair(setOf(it.input1, it.input2), it.operator) }
+
+            fun getHalfAdder(a: String?, b: String?): Adder.Half {
+                if (a == null || b == null) {
+                    return Adder.Half(a, b, null, null)
+                }
+                val set = setOf(a, b)
+                val xor = gateByInputs[set to Operator.XOR]
+                val and = gateByInputs[set to Operator.AND]
+                return Adder.Half(a, b, xor?.output, and?.output)
             }
-            val set = setOf(a, b)
-            val xor = gateByInputs[set to Operator.XOR]
-            val and = gateByInputs[set to Operator.AND]
-            return Adder.Half(a, b, xor?.output, and?.output)
+
+            val initial = getHalfAdder("x00", "y00")
+            if (initial.s != "z00") {
+                // only possible error here
+                return initial.s!! to initial.cOut!!
+            }
+            val adders = mutableListOf<Adder>(initial)
+            for (i in 1..highestInputBit) {
+                val halfAdder1 = getHalfAdder(wire('x', i), wire('y', i))
+                val cIn = adders.last().cOut
+                val halfAdder2 = getHalfAdder(cIn, halfAdder1.s)
+                if (halfAdder2.s == null || halfAdder2.cOut == null) {
+                    val gateForCIn = gates.first { it.input1 == cIn || it.input2 == cIn }
+                    val toSwap = if (gateForCIn.input1 == cIn) {
+                        gateForCIn.input2
+                    } else {
+                        gateForCIn.input1
+                    }
+                    return halfAdder1.s!! to toSwap
+                }
+                val expectedS = wire('z', i)
+                if (halfAdder2.s != expectedS) {
+                    return halfAdder2.s to expectedS
+                }
+                val or = gateByInputs[setOf(halfAdder1.cOut, halfAdder2.cOut) to Operator.OR]
+                    ?: return halfAdder2.s to halfAdder2.cOut
+                val fullAdder = Adder.Full(halfAdder1, halfAdder2, or.output)
+                if (fullAdder.s != wire('z', i)) {
+                    return fullAdder.s!! to fullAdder.cOut!!
+                }
+                adders.add(fullAdder)
+            }
+            adders.forEach(::println)
+            return null
         }
 
-        val initial = getHalfAdder("x00", "y00")
-        val adders = mutableListOf<Adder>(initial)
-        for (i in 1..highestInputBit) {
-            val xWire = wire('x', i)
-            val yWire = wire('y', i)
-            val halfAdder1 = getHalfAdder(xWire, yWire)
-            val expectedCIn = adders.last().cOut
-            val halfAdder2 = getHalfAdder(expectedCIn, halfAdder1.s)
-            val or = if (halfAdder1.cOut != null && halfAdder2.cOut != null) {
-                gateByInputs[setOf(halfAdder1.cOut, halfAdder2.cOut) to Operator.OR]
-            } else {
-                null
-            }
-            val fullAdder = Adder.Full(halfAdder1, halfAdder2, or?.output)
-            adders.add(fullAdder)
+        val swappedOutputs = mutableListOf<String>()
+        var currentGates: Collection<LogicGate> = gates
+        repeat(4) {
+            val swap = nextSwap(currentGates)!!
+            swappedOutputs.add(swap.first)
+            swappedOutputs.add(swap.second)
+            currentGates = currentGates.swapOutputs(swap.first, swap.second)
         }
-        adders.forEach { println(it) }
-        return swaps.flatMap { it.toList() }.sorted().joinToString(",")
+        nextSwap(currentGates)
+        return swappedOutputs.sorted().joinToString(",")
     }
 
     check(part1(readInput("Day24_test1")) == 4L)
